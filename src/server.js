@@ -2,22 +2,19 @@ const express = require("express");
 const fsp = require("fs/promises");
 const path = require("path");
 
-const caminhoArquivo = path.join(__dirname, "dados.txt");
+
 const servidor = express();
 
 servidor.use(express.json());
 
-servidor.get("/dados", async (_req, res) => {
+servidor.get("/dado/:nome", async (_req, res) => {
   try {
-    let dados = await fsp.readFile(caminhoArquivo, "utf8");
+    const caminhoArquivo=path.join(__dirname,"textos", nome + ".txt");
+    const arquivos = await fsp.readFile(caminhoArquivo);
+    
+    const arquivosTexto = arquivos.filter(arquivo => arquivo.endsWith(".txt"));
 
-    dados = dados
-      .split("\r")
-      .join("")
-      .split("\n")
-      .filter((linha) => linha.trim() !== "");
-
-    res.status(200).json({ conteudo: dados });
+   res.status(200).json({ arquivodisponiveis: caminhoArquivo });
   } catch (erro) {
     if (erro.code === "ENOENT") {
       // Arquivo não encontrado
@@ -37,6 +34,12 @@ servidor.get("/dados", async (_req, res) => {
 
 servidor.put("/dados", async (req, res) => {
   try {
+    const { nome } = req.query
+    if (!nome) {
+      return res
+      .status(404)
+      .json({erro: "Conteúdo inválido: deve ser uma string não vazia."})
+    }
     let { conteudo } = req.body;
     if (!conteudo || typeof conteudo !== "string" || conteudo.trim() === "") {
       return res.status(400).json({ erro: "Conteúdo inválido: deve ser uma string não vazia." });
@@ -71,5 +74,19 @@ servidor.put("/dados", async (req, res) => {
     }
   }
 });
+
+servidor.post("dados", (req, res) =>{
+ // nome do arquivo = body request
+
+ //conteudo = body resquest
+
+ // encontrar caminho da pasta aondeo conteudo vai sercriado
+
+ //nome do arquivo = criar o arquivo() fsp()
+
+ //nome do arquivo = insrir o conteudo
+
+ //retorna a reposta 
+})
 
 servidor.listen(3000, () => console.log("Servidor está rodando... 🔥"));
